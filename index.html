@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Think Out Loud or Think Inside?</title>
+    <meta
+      name="description"
+      content="An interactive puzzle explainer for visible and hidden reasoning modes in large language models."
+    >
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="hero">
+        <p class="eyebrow">CSE 151B communication artifact</p>
+        <h1>Think Out Loud or Think Inside?</h1>
+        <p class="lede">
+          Compare four ways an AI assistant might appear to solve the same puzzle:
+          direct answer, visible chain-of-thought, hidden reasoning, and a latent
+          reasoning research preview.
+        </p>
+      </header>
+
+      <section class="workspace" aria-label="Interactive reasoning mode demo">
+        <section class="panel puzzle-panel" aria-labelledby="puzzle-heading">
+          <div class="section-label">Puzzle</div>
+          <h2 id="puzzle-heading">Lock-and-clue puzzle</h2>
+          <p class="puzzle-copy">
+            A lock needs a three-color code in the order <strong>red, green, blue</strong>.
+            The clue says: blue is 3, red is 2 * blue, and green is red + blue.
+          </p>
+          <p class="prompt">What code opens the lock?</p>
+        </section>
+
+        <section class="panel controls-panel" aria-labelledby="mode-heading">
+          <div class="section-label">Mode</div>
+          <h2 id="mode-heading">Choose a reasoning mode</h2>
+          <div class="mode-grid" role="group" aria-label="Reasoning mode choices">
+            <button class="mode-button is-active" type="button" data-mode="direct">
+              Direct answer
+            </button>
+            <button class="mode-button" type="button" data-mode="cot">
+              Visible CoT
+            </button>
+            <button class="mode-button" type="button" data-mode="hidden">
+              Hidden reasoning
+            </button>
+            <button class="mode-button" type="button" data-mode="latent">
+              Latent preview
+            </button>
+          </div>
+        </section>
+      </section>
+
+      <section class="demo-grid">
+        <section class="panel output-panel" aria-labelledby="output-heading">
+          <div class="section-label">Solver output</div>
+          <h2 id="output-heading">What the user sees</h2>
+          <div id="solver-output" class="solver-output" aria-live="polite"></div>
+        </section>
+
+        <section class="panel diagram-panel" aria-labelledby="diagram-heading">
+          <div class="section-label">Architecture view</div>
+          <h2 id="diagram-heading">How the mode maps to Transformer concepts</h2>
+          <div class="diagram" aria-label="Simplified Transformer reasoning diagram">
+            <div class="lane input-lane">
+              <span class="token">Puzzle tokens</span>
+              <span class="arrow">-></span>
+              <span class="block transformer">Transformer</span>
+            </div>
+
+            <div class="lane cot-lane" data-arc="cot">
+              <span class="token token-step">Blue = 3</span>
+              <span class="token token-step">Red = 6</span>
+              <span class="token token-step">Green = 9</span>
+              <span class="arrow">-></span>
+              <span class="token answer-token">Answer 693</span>
+            </div>
+
+            <div class="lane hidden-lane" data-arc="hidden">
+              <span class="private-zone">Private reasoning tokens</span>
+              <span class="arrow">-></span>
+              <span class="token answer-token">Summary + answer</span>
+            </div>
+
+            <div class="lane latent-lane" data-arc="latent">
+              <span class="state">h1</span>
+              <span class="state">h2</span>
+              <span class="state">h3</span>
+              <span class="arrow">-></span>
+              <span class="token answer-token">Answer</span>
+            </div>
+
+            <div class="attention-note" id="diagram-note">
+              Direct answering generates the final answer without showing intermediate steps.
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="panel tradeoff-panel" aria-labelledby="tradeoff-heading">
+        <div class="section-label">Tradeoffs</div>
+        <h2 id="tradeoff-heading">What changes when reasoning becomes visible or hidden?</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Mode</th>
+                <th>Visible tokens</th>
+                <th>Transparency</th>
+                <th>Debuggability</th>
+                <th>Main caution</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-row="direct">
+                <td>Direct answer</td>
+                <td>Low</td>
+                <td>Low</td>
+                <td>Low</td>
+                <td>The answer may look confident without showing why.</td>
+              </tr>
+              <tr data-row="cot">
+                <td>Visible CoT</td>
+                <td>High</td>
+                <td>Higher</td>
+                <td>Higher</td>
+                <td>Written reasoning is inspectable but not always faithful.</td>
+              </tr>
+              <tr data-row="hidden">
+                <td>Hidden reasoning</td>
+                <td>Medium</td>
+                <td>Medium</td>
+                <td>Medium</td>
+                <td>Private steps may be useful but are not fully auditable.</td>
+              </tr>
+              <tr data-row="latent">
+                <td>Latent preview</td>
+                <td>Low</td>
+                <td>Low</td>
+                <td>Low</td>
+                <td>This is a research framing, not a deployed-model claim.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
