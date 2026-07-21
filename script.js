@@ -1,97 +1,222 @@
+const slides = Array.from(document.querySelectorAll(".slide"));
+const prevButton = document.getElementById("prev-slide");
+const nextButton = document.getElementById("next-slide");
+const currentSlideLabel = document.getElementById("current-slide");
+const totalSlidesLabel = document.getElementById("total-slides");
+const progressFill = document.getElementById("progress-fill");
+const dotsContainer = document.getElementById("slide-dots");
+const notesToggle = document.getElementById("notes-toggle");
+const deckShell = document.querySelector(".deck-shell");
+
+const output = document.getElementById("solver-output");
+const diagramCaption = document.getElementById("diagram-caption");
+const modeTabs = Array.from(document.querySelectorAll(".mode-tab"));
+const modeChips = Array.from(document.querySelectorAll(".mode-chip"));
+const diagramPaths = Array.from(document.querySelectorAll("[data-path]"));
+const tableRows = Array.from(document.querySelectorAll("[data-row]"));
+
+let activeSlide = 0;
+let activeMode = "direct";
+
 const modes = {
   direct: {
     title: "Direct answer",
     items: ["Answer: 693"],
     note:
-      "The assistant gives the final code immediately. This is fast, but the user cannot inspect the intermediate computation.",
-    diagram:
-      "Direct answering generates the final answer without showing intermediate steps.",
-    activeArc: null
+      "Fast and compact, but the student cannot inspect the intermediate computation.",
+    caption:
+      "Direct answering uses the same Transformer machinery, but the interface shows only the final generated answer.",
+    path: null
   },
   cot: {
     title: "Visible chain-of-thought",
     items: [
       "Blue = 3.",
-      "Red = 2 * blue = 6.",
-      "Green = red + blue = 9.",
+      "Red = 2 times blue = 6.",
+      "Green = red plus blue = 9.",
       "Code in red, green, blue order = 693."
     ],
     note:
-      "The reasoning is written as visible tokens. Later answer tokens can use those earlier reasoning tokens as context.",
-    diagram:
-      "Visible CoT turns intermediate reasoning into generated tokens that remain in the context window.",
-    activeArc: "cot"
+      "The reasoning becomes text tokens. Later answer tokens can attend to those earlier generated steps.",
+    caption:
+      "Visible CoT stores intermediate computation as generated language tokens that remain in the context.",
+    path: "cot"
   },
   hidden: {
     title: "Hidden reasoning",
     items: [
       "Private reasoning used.",
-      "Summary: I mapped each color clue to a value, then assembled the code in the requested order.",
+      "Summary: The color values were computed first, then placed in the requested order.",
       "Answer: 693"
     ],
     note:
-      "The interface shows only a summary and answer. This resembles deployed reasoning systems more closely than raw visible CoT.",
-    diagram:
-      "Hidden reasoning keeps intermediate thinking private while exposing only a summary or final answer.",
-    activeArc: "hidden"
+      "The user sees a summary or answer, not the full private scratchpad. This is an interface pattern, not direct access to internals.",
+    caption:
+      "Hidden reasoning keeps intermediate text private and exposes only a summary or final answer.",
+    path: "hidden"
   },
   latent: {
     title: "Latent reasoning preview",
     items: [
-      "Puzzle tokens update an internal state.",
-      "Extra internal computation refines that state before output.",
+      "Puzzle tokens update internal hidden states.",
+      "Extra computation refines those states before any final text is emitted.",
       "Answer: 693"
     ],
     note:
-      "This is a research preview, not a claim about a deployed model. The visual stands in for pause-token or continuous-state reasoning ideas.",
-    diagram:
-      "Latent reasoning research explores extra computation in hidden states rather than fully written natural-language steps.",
-    activeArc: "latent"
+      "This is a research preview inspired by pause-token and continuous-latent reasoning work, not a claim about a specific deployed model.",
+    caption:
+      "Latent reasoning research asks whether some reasoning can happen through hidden-state updates instead of natural-language steps.",
+    path: "latent"
   }
 };
 
-const output = document.getElementById("solver-output");
-const note = document.getElementById("diagram-note");
-const buttons = Array.from(document.querySelectorAll(".mode-button"));
-const lanes = Array.from(document.querySelectorAll("[data-arc]"));
-const rows = Array.from(document.querySelectorAll("[data-row]"));
+function setSlide(index) {
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
 
-function renderOutput(modeKey) {
-  const mode = modes[modeKey];
-  const listItems = mode.items.map((item) => `<li>${item}</li>`).join("");
+  activeSlide = Math.max(0, Math.min(index, slides.length - 1));
 
-  output.innerHTML = `
-    <p class="output-title">${mode.title}</p>
-    <ul class="output-list">${listItems}</ul>
-    <p class="mode-note">${mode.note}</p>
-  `;
+  slides.forEach((slide, slideIndex) => {
+    const isActive = slideIndex === activeSlide;
+    slide.classList.toggle("is-active", isActive);
+    slide.setAttribute("aria-hidden", String(!isActive));
+  });
+
+  currentSlideLabel.textContent = String(activeSlide + 1);
+  progressFill.style.width = `${((activeSlide + 1) / slides.length) * 100}%`;
+
+  prevButton.disabled = activeSlide === 0;
+  nextButton.disabled = activeSlide === slides.length - 1;
+  nextButton.textContent = activeSlide === slides.length - 1 ? "End" : "Next";
+
+  Array.from(dotsContainer.children).forEach((dot, dotIndex) => {
+    const isActive = dotIndex === activeSlide;
+    dot.classList.toggle("is-active", isActive);
+    dot.setAttribute("aria-current", isActive ? "step" : "false");
+  });
+
+  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  requestAnimationFrame(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  });
 }
 
-function setActiveMode(modeKey) {
-  const mode = modes[modeKey];
+function renderDots() {
+  dotsContainer.innerHTML = "";
+  slides.forEach((slide, index) => {
+    const button = document.createElement("button");
+    button.className = "dot-button";
+    button.type = "button";
+    button.textContent = String(index + 1);
+    button.setAttribute("aria-label", `Go to slide ${index + 1}: ${slide.dataset.title}`);
+    button.addEventListener("click", () => setSlide(index));
+    dotsContainer.appendChild(button);
+  });
+}
 
-  buttons.forEach((button) => {
+function renderMode(modeKey) {
+  const mode = modes[modeKey];
+  if (!mode || !output) {
+    return;
+  }
+
+  activeMode = modeKey;
+
+  output.innerHTML = `
+    <p class="solver-title">${mode.title}</p>
+    <ul class="solver-list">
+      ${mode.items.map((item) => `<li>${item}</li>`).join("")}
+    </ul>
+    <p class="solver-note">${mode.note}</p>
+  `;
+
+  modeTabs.forEach((button) => {
     const isActive = button.dataset.mode === modeKey;
     button.classList.toggle("is-active", isActive);
-    button.setAttribute("aria-pressed", String(isActive));
+    button.setAttribute("aria-selected", String(isActive));
   });
 
-  lanes.forEach((lane) => {
-    lane.classList.toggle("is-active", lane.dataset.arc === mode.activeArc);
+  modeChips.forEach((button) => {
+    button.classList.toggle("is-selected", button.dataset.jumpMode === modeKey);
   });
 
-  rows.forEach((row) => {
+  diagramPaths.forEach((path) => {
+    path.classList.toggle("is-active", path.dataset.path === mode.path);
+  });
+
+  tableRows.forEach((row) => {
     row.classList.toggle("is-active", row.dataset.row === modeKey);
   });
 
-  note.textContent = mode.diagram;
-  renderOutput(modeKey);
+  if (diagramCaption) {
+    diagramCaption.textContent = mode.caption;
+  }
+
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
+  requestAnimationFrame(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  });
 }
 
-buttons.forEach((button) => {
-  button.addEventListener("click", () => {
-    setActiveMode(button.dataset.mode);
-  });
+function jumpToMode(modeKey) {
+  renderMode(modeKey);
+  setSlide(3);
+}
+
+prevButton.addEventListener("click", () => setSlide(activeSlide - 1));
+nextButton.addEventListener("click", () => setSlide(activeSlide + 1));
+
+modeTabs.forEach((button) => {
+  button.addEventListener("click", () => renderMode(button.dataset.mode));
 });
 
-setActiveMode("direct");
+modeChips.forEach((button) => {
+  button.addEventListener("click", () => jumpToMode(button.dataset.jumpMode));
+});
+
+notesToggle.addEventListener("click", () => {
+  const shouldShow = !deckShell.classList.contains("show-notes");
+  deckShell.classList.toggle("show-notes", shouldShow);
+  notesToggle.setAttribute("aria-pressed", String(shouldShow));
+});
+
+document.addEventListener("keydown", (event) => {
+  const tagName = document.activeElement?.tagName;
+  const isTyping = tagName === "INPUT" || tagName === "TEXTAREA" || tagName === "SELECT";
+
+  if (isTyping) {
+    return;
+  }
+
+  if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") {
+    event.preventDefault();
+    setSlide(activeSlide + 1);
+  }
+
+  if (event.key === "ArrowLeft" || event.key === "PageUp") {
+    event.preventDefault();
+    setSlide(activeSlide - 1);
+  }
+
+  if (event.key === "Home") {
+    event.preventDefault();
+    setSlide(0);
+  }
+
+  if (event.key === "End") {
+    event.preventDefault();
+    setSlide(slides.length - 1);
+  }
+
+  if (event.key.toLowerCase() === "n") {
+    notesToggle.click();
+  }
+});
+
+totalSlidesLabel.textContent = String(slides.length);
+renderDots();
+renderMode(activeMode);
+setSlide(activeSlide);

@@ -6,111 +6,358 @@
     <title>Think Out Loud or Think Inside?</title>
     <meta
       name="description"
-      content="An interactive puzzle explainer for visible and hidden reasoning modes in large language models."
+      content="An interactive slide presentation about direct answering, chain-of-thought, hidden reasoning, and latent reasoning in deep learning."
     >
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
-    <main class="shell">
-      <header class="hero">
-        <p class="eyebrow">CSE 151B communication artifact</p>
-        <h1>Think Out Loud or Think Inside?</h1>
-        <p class="lede">
-          Compare four ways an AI assistant might appear to solve the same puzzle:
-          direct answer, visible chain-of-thought, hidden reasoning, and a latent
-          reasoning research preview.
-        </p>
+    <a class="skip-link" href="#deck">Skip to slides</a>
+
+    <main class="deck-shell" id="deck">
+      <header class="topbar" aria-label="Presentation controls">
+        <div class="brand-block">
+          <p class="course-label">CSE 151B communication artifact</p>
+          <h1>Think Out Loud or Think Inside?</h1>
+        </div>
+        <div class="topbar-actions">
+          <button class="nav-button" type="button" id="prev-slide">Previous</button>
+          <button class="ghost-button" type="button" id="notes-toggle" aria-pressed="false">
+            Notes
+          </button>
+          <div class="slide-counter" aria-live="polite">
+            <span id="current-slide">1</span>
+            <span aria-hidden="true">/</span>
+            <span id="total-slides">10</span>
+          </div>
+          <button class="nav-button nav-button-primary" type="button" id="next-slide">Next</button>
+        </div>
       </header>
 
-      <section class="workspace" aria-label="Interactive reasoning mode demo">
-        <section class="panel puzzle-panel" aria-labelledby="puzzle-heading">
-          <div class="section-label">Puzzle</div>
-          <h2 id="puzzle-heading">Lock-and-clue puzzle</h2>
-          <p class="puzzle-copy">
-            A lock needs a three-color code in the order <strong>red, green, blue</strong>.
-            The clue says: blue is 3, red is 2 * blue, and green is red + blue.
-          </p>
-          <p class="prompt">What code opens the lock?</p>
-        </section>
+      <div class="progress-track" aria-hidden="true">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
 
-        <section class="panel controls-panel" aria-labelledby="mode-heading">
-          <div class="section-label">Mode</div>
-          <h2 id="mode-heading">Choose a reasoning mode</h2>
-          <div class="mode-grid" role="group" aria-label="Reasoning mode choices">
-            <button class="mode-button is-active" type="button" data-mode="direct">
+      <section class="slide is-active" data-title="Opening" aria-labelledby="slide-1-title">
+        <div class="slide-kicker">Opening</div>
+        <div class="opening-grid">
+          <div class="opening-copy">
+            <h2 id="slide-1-title">Reasoning is not one thing.</h2>
+            <p class="large-copy">
+              Modern AI systems can answer directly, write intermediate steps, hide
+              private computation, or explore research ideas that reason in hidden
+              state space.
+            </p>
+            <p>
+              This deck teaches those modes through one small puzzle and one
+              Transformer-based visual language.
+            </p>
+          </div>
+          <div class="thesis-board" aria-label="Four reasoning modes overview">
+            <button class="mode-chip is-selected" type="button" data-jump-mode="direct">
               Direct answer
             </button>
-            <button class="mode-button" type="button" data-mode="cot">
+            <button class="mode-chip" type="button" data-jump-mode="cot">
               Visible CoT
             </button>
-            <button class="mode-button" type="button" data-mode="hidden">
+            <button class="mode-chip" type="button" data-jump-mode="hidden">
               Hidden reasoning
             </button>
-            <button class="mode-button" type="button" data-mode="latent">
+            <button class="mode-chip" type="button" data-jump-mode="latent">
               Latent preview
             </button>
           </div>
-        </section>
+        </div>
+        <aside class="speaker-notes">
+          Start by telling the audience this is not a ranking of methods. It is a
+          map of where computation becomes visible, hidden, or compressed.
+        </aside>
       </section>
 
-      <section class="demo-grid">
-        <section class="panel output-panel" aria-labelledby="output-heading">
-          <div class="section-label">Solver output</div>
-          <h2 id="output-heading">What the user sees</h2>
-          <div id="solver-output" class="solver-output" aria-live="polite"></div>
-        </section>
-
-        <section class="panel diagram-panel" aria-labelledby="diagram-heading">
-          <div class="section-label">Architecture view</div>
-          <h2 id="diagram-heading">How the mode maps to Transformer concepts</h2>
-          <div class="diagram" aria-label="Simplified Transformer reasoning diagram">
-            <div class="lane input-lane">
-              <span class="token">Puzzle tokens</span>
-              <span class="arrow">-></span>
-              <span class="block transformer">Transformer</span>
+      <section class="slide" data-title="Why It Matters" aria-labelledby="slide-2-title">
+        <div class="slide-kicker">Why it matters</div>
+        <div class="two-column">
+          <div>
+            <h2 id="slide-2-title">A first DL class already has the right tools.</h2>
+            <p>
+              Students have seen hidden activations, sequence models, attention, and
+              token prediction. Reasoning modes reuse those ideas, but package them
+              in unfamiliar product language.
+            </p>
+          </div>
+          <div class="course-map" aria-label="Course concept map">
+            <div class="course-row">
+              <span>Tokens</span>
+              <strong>What gets generated?</strong>
             </div>
-
-            <div class="lane cot-lane" data-arc="cot">
-              <span class="token token-step">Blue = 3</span>
-              <span class="token token-step">Red = 6</span>
-              <span class="token token-step">Green = 9</span>
-              <span class="arrow">-></span>
-              <span class="token answer-token">Answer 693</span>
+            <div class="course-row">
+              <span>Hidden states</span>
+              <strong>Where is computation stored?</strong>
             </div>
-
-            <div class="lane hidden-lane" data-arc="hidden">
-              <span class="private-zone">Private reasoning tokens</span>
-              <span class="arrow">-></span>
-              <span class="token answer-token">Summary + answer</span>
+            <div class="course-row">
+              <span>Attention</span>
+              <strong>What can later steps reuse?</strong>
             </div>
-
-            <div class="lane latent-lane" data-arc="latent">
-              <span class="state">h1</span>
-              <span class="state">h2</span>
-              <span class="state">h3</span>
-              <span class="arrow">-></span>
-              <span class="token answer-token">Answer</span>
-            </div>
-
-            <div class="attention-note" id="diagram-note">
-              Direct answering generates the final answer without showing intermediate steps.
+            <div class="course-row">
+              <span>Autoregression</span>
+              <strong>Why do steps change future output?</strong>
             </div>
           </div>
-        </section>
+        </div>
+        <aside class="speaker-notes">
+          This slide answers the proposal feedback. The resource matters because
+          students already know the pieces but need a bridge to current AI terms.
+        </aside>
       </section>
 
-      <section class="panel tradeoff-panel" aria-labelledby="tradeoff-heading">
-        <div class="section-label">Tradeoffs</div>
-        <h2 id="tradeoff-heading">What changes when reasoning becomes visible or hidden?</h2>
-        <div class="table-wrap">
+      <section class="slide" data-title="Baseline" aria-labelledby="slide-3-title">
+        <div class="slide-kicker">Baseline</div>
+        <h2 id="slide-3-title">A Transformer predicts the next token from context.</h2>
+        <p class="slide-intro">
+          The starting point is the standard Transformer picture: input tokens become
+          hidden states, attention mixes information, and the model emits output
+          tokens one at a time.
+        </p>
+        <div class="architecture-frame baseline-diagram" aria-label="Simplified Transformer baseline diagram">
+          <div class="token-strip input-strip" data-diagram-part="input">
+            <span>red</span>
+            <span>green</span>
+            <span>blue</span>
+            <span>?</span>
+          </div>
+          <div class="attention-stage">
+            <div class="attn-arrow"></div>
+            <div class="transformer-block" data-diagram-part="transformer">
+              Transformer block
+              <small>attention + MLP + hidden states</small>
+            </div>
+            <div class="attn-arrow"></div>
+          </div>
+          <div class="token-strip output-strip" data-diagram-part="output">
+            <span>6</span>
+            <span>9</span>
+            <span>3</span>
+          </div>
+        </div>
+        <p class="source-line">
+          Diagram language adapted from Vaswani et al., <cite>Attention Is All You Need</cite>.
+        </p>
+        <aside class="speaker-notes">
+          Keep this slide concrete. It is the shared machinery used by the later
+          reasoning modes.
+        </aside>
+      </section>
+
+      <section class="slide" data-title="Four Modes" aria-labelledby="slide-4-title">
+        <div class="slide-kicker">Four modes</div>
+        <h2 id="slide-4-title">One puzzle, four reasoning modes.</h2>
+        <p class="slide-intro">
+          Click a mode to change the output, the architecture path, and the tradeoff
+          table. The example is scripted so the mechanism stays readable.
+        </p>
+        <div class="interactive-lab">
+          <div class="puzzle-card">
+            <p class="mini-label">Puzzle</p>
+            <h3>Three-color lock</h3>
+            <p>
+              The code is ordered red, green, blue. Blue is 3. Red is 2 times
+              blue. Green is red plus blue.
+            </p>
+            <strong>What code opens the lock?</strong>
+          </div>
+
+          <div class="mode-control" role="tablist" aria-label="Reasoning mode choices">
+            <button class="mode-tab is-active" type="button" role="tab" aria-selected="true" data-mode="direct">
+              Direct
+            </button>
+            <button class="mode-tab" type="button" role="tab" aria-selected="false" data-mode="cot">
+              Visible CoT
+            </button>
+            <button class="mode-tab" type="button" role="tab" aria-selected="false" data-mode="hidden">
+              Hidden
+            </button>
+            <button class="mode-tab" type="button" role="tab" aria-selected="false" data-mode="latent">
+              Latent
+            </button>
+          </div>
+
+          <div class="output-card" aria-live="polite">
+            <p class="mini-label">What the user sees</p>
+            <div id="solver-output"></div>
+          </div>
+        </div>
+        <aside class="speaker-notes">
+          This is the anchor demo. The key point is not puzzle difficulty. The
+          key point is where the intermediate computation is represented.
+        </aside>
+      </section>
+
+      <section class="slide" data-title="Interactive Diagram" aria-labelledby="slide-5-title">
+        <div class="slide-kicker">Interactive diagram</div>
+        <h2 id="slide-5-title">Where does the intermediate computation live?</h2>
+        <div class="diagram-layout">
+          <div class="reasoning-diagram" aria-label="Interactive reasoning architecture diagram">
+            <div class="diagram-column">
+              <p class="mini-label">Input</p>
+              <div class="diagram-node input-node" data-node="input">Puzzle tokens</div>
+            </div>
+            <div class="diagram-column">
+              <p class="mini-label">Model</p>
+              <div class="diagram-node model-node" data-node="model">Transformer</div>
+              <div class="diagram-node state-node" data-node="state">Hidden states</div>
+            </div>
+            <div class="diagram-column" data-path="cot">
+              <p class="mini-label">Visible path</p>
+              <div class="diagram-node token-node">reasoning tokens</div>
+              <div class="diagram-node token-node">answer token</div>
+            </div>
+            <div class="diagram-column" data-path="hidden">
+              <p class="mini-label">Private path</p>
+              <div class="diagram-node private-node">private scratchpad</div>
+              <div class="diagram-node token-node">summary + answer</div>
+            </div>
+            <div class="diagram-column" data-path="latent">
+              <p class="mini-label">Latent path</p>
+              <div class="latent-loop">
+                <span>h1</span>
+                <span>h2</span>
+                <span>h3</span>
+              </div>
+              <div class="diagram-node token-node">answer token</div>
+            </div>
+          </div>
+          <div class="diagram-caption" id="diagram-caption">
+            Direct answering uses the same Transformer machinery, but the interface
+            shows only the final generated answer.
+          </div>
+        </div>
+        <aside class="speaker-notes">
+          The visible path is inspired by chain-of-thought diagrams. The latent
+          path is inspired by pause-token and Coconut-style diagrams, simplified
+          into hidden-state updates.
+        </aside>
+      </section>
+
+      <section class="slide" data-title="Visible Reasoning" aria-labelledby="slide-6-title">
+        <div class="slide-kicker">Visible reasoning</div>
+        <div class="two-column">
+          <div>
+            <h2 id="slide-6-title">Chain-of-thought makes reasoning a text sequence.</h2>
+            <p>
+              In visible CoT, intermediate steps become tokens. That makes them easy
+              for a human to inspect, and it also gives later generated tokens more
+              context to attend to.
+            </p>
+          </div>
+          <div class="path-sketch" aria-label="Visible chain-of-thought process">
+            <span class="sketch-token">Question</span>
+            <span class="sketch-link">to</span>
+            <span class="sketch-token is-reasoning">Step 1</span>
+            <span class="sketch-token is-reasoning">Step 2</span>
+            <span class="sketch-token is-reasoning">Step 3</span>
+            <span class="sketch-link">to</span>
+            <span class="sketch-token is-answer">Answer</span>
+          </div>
+        </div>
+        <div class="single-table">
           <table>
+            <thead>
+              <tr>
+                <th>Affordance</th>
+                <th>Risk</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Human-readable intermediate steps</td>
+                <td>Written reasoning may sound plausible even when it is wrong</td>
+              </tr>
+              <tr>
+                <td>Useful for teaching and debugging</td>
+                <td>More generated tokens can mean more cost and latency</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="source-line">
+          Based on Wei et al. on chain-of-thought prompting, plus scratchpad and
+          zero-shot CoT work.
+        </p>
+        <aside class="speaker-notes">
+          Mention that visible reasoning is good pedagogically, but not a perfect
+          window into what the model internally did.
+        </aside>
+      </section>
+
+      <section class="slide" data-title="Extensions" aria-labelledby="slide-7-title">
+        <div class="slide-kicker">Extensions</div>
+        <h2 id="slide-7-title">Some methods search over reasoning, not just one chain.</h2>
+        <p class="slide-intro">
+          Self-consistency and Tree of Thoughts extend visible reasoning by sampling
+          or exploring several candidate paths before choosing an answer.
+        </p>
+        <div class="branching-board" aria-label="Multiple reasoning paths diagram">
+          <div class="branch-root">Puzzle</div>
+          <div class="branches">
+            <div class="branch is-muted">path A<br><strong>691</strong></div>
+            <div class="branch is-selected">path B<br><strong>693</strong></div>
+            <div class="branch is-muted">path C<br><strong>963</strong></div>
+          </div>
+          <div class="vote-box">select or vote</div>
+        </div>
+        <aside class="speaker-notes">
+          Keep this short. These are not core modes for our artifact, but they help
+          students see why reasoning can also involve sampling and search.
+        </aside>
+      </section>
+
+      <section class="slide" data-title="Hidden and Latent" aria-labelledby="slide-8-title">
+        <div class="slide-kicker">Hidden and latent</div>
+        <div class="contrast-grid">
+          <article class="contrast-panel">
+            <h2 id="slide-8-title">Hidden reasoning is an interface choice.</h2>
+            <p>
+              The model may use private intermediate computation, but the user sees
+              only an answer or a brief summary. This is closer to many deployed
+              reasoning products.
+            </p>
+            <div class="mini-flow">
+              <span>input</span>
+              <span>private text</span>
+              <span>summary</span>
+            </div>
+          </article>
+          <article class="contrast-panel">
+            <h2>Latent reasoning is a research direction.</h2>
+            <p>
+              The idea is to spend more computation in hidden activations or special
+              internal steps before producing text. It is promising, but should not
+              be presented as a standard deployed mechanism.
+            </p>
+            <div class="mini-flow">
+              <span>input</span>
+              <span>hidden state loop</span>
+              <span>answer</span>
+            </div>
+          </article>
+        </div>
+        <aside class="speaker-notes">
+          This slide is where we avoid overclaiming. Hidden reasoning and latent
+          reasoning are related, but not the same claim.
+        </aside>
+      </section>
+
+      <section class="slide" data-title="Tradeoffs" aria-labelledby="slide-9-title">
+        <div class="slide-kicker">Tradeoffs</div>
+        <h2 id="slide-9-title">The choice is a design tradeoff, not a simple upgrade.</h2>
+        <div class="table-responsive">
+          <table class="comparison-table">
             <thead>
               <tr>
                 <th>Mode</th>
                 <th>Visible tokens</th>
                 <th>Transparency</th>
-                <th>Debuggability</th>
-                <th>Main caution</th>
+                <th>Token cost</th>
+                <th>Research maturity</th>
               </tr>
             </thead>
             <tbody>
@@ -119,33 +366,67 @@
                 <td>Low</td>
                 <td>Low</td>
                 <td>Low</td>
-                <td>The answer may look confident without showing why.</td>
+                <td>Standard baseline</td>
               </tr>
               <tr data-row="cot">
                 <td>Visible CoT</td>
                 <td>High</td>
                 <td>Higher</td>
                 <td>Higher</td>
-                <td>Written reasoning is inspectable but not always faithful.</td>
+                <td>Well-studied prompting method</td>
               </tr>
               <tr data-row="hidden">
                 <td>Hidden reasoning</td>
                 <td>Medium</td>
                 <td>Medium</td>
-                <td>Medium</td>
-                <td>Private steps may be useful but are not fully auditable.</td>
+                <td>Varies</td>
+                <td>Common product pattern</td>
               </tr>
               <tr data-row="latent">
                 <td>Latent preview</td>
                 <td>Low</td>
-                <td>Low</td>
-                <td>Low</td>
-                <td>This is a research framing, not a deployed-model claim.</td>
+                <td>Lower</td>
+                <td>Potentially lower output cost</td>
+                <td>Emerging research</td>
               </tr>
             </tbody>
           </table>
         </div>
+        <aside class="speaker-notes">
+          Stress that transparency, efficiency, and faithfulness do not all improve
+          at once. The artifact helps students reason about the tradeoff.
+        </aside>
       </section>
+
+      <section class="slide" data-title="Source Map" aria-labelledby="slide-10-title">
+        <div class="slide-kicker">Source map</div>
+        <h2 id="slide-10-title">What the deck builds on.</h2>
+        <div class="source-grid" aria-label="Representative source papers">
+          <a href="https://arxiv.org/abs/1706.03762">Transformer baseline</a>
+          <a href="https://arxiv.org/abs/2201.11903">Chain-of-thought prompting</a>
+          <a href="https://arxiv.org/abs/2112.00114">Scratchpads</a>
+          <a href="https://arxiv.org/abs/2205.11916">Zero-shot CoT</a>
+          <a href="https://arxiv.org/abs/2203.11171">Self-consistency</a>
+          <a href="https://arxiv.org/abs/2305.10601">Tree of Thoughts</a>
+          <a href="https://arxiv.org/abs/2210.03629">ReAct</a>
+          <a href="https://arxiv.org/abs/2403.09629">Quiet-STaR</a>
+          <a href="https://arxiv.org/abs/2310.02226">Pause Tokens</a>
+          <a href="https://arxiv.org/abs/2412.06769">Coconut</a>
+          <a href="https://arxiv.org/abs/2511.05963">Next-Latent Prediction</a>
+        </div>
+        <p class="closing-copy">
+          The artifact uses original simplified diagrams. They are teaching models,
+          not claims that we can inspect a deployed model's private internals.
+        </p>
+        <aside class="speaker-notes">
+          End by returning to AI literacy. Students should be able to ask what is
+          visible, what is hidden, and what is still research.
+        </aside>
+      </section>
+
+      <nav class="deck-nav" aria-label="Slide navigation">
+        <div class="slide-dots" id="slide-dots" aria-label="Slide picker"></div>
+      </nav>
     </main>
 
     <script src="script.js"></script>
