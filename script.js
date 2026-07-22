@@ -22,7 +22,7 @@ const figureVariants = {
     alt: "The two-stage Zero-shot-CoT pipeline first extracts reasoning and then extracts the final answer.",
     width: "1341",
     height: "531",
-    href: "../papers/2205.11916-zero-shot-reasoners.pdf#page=4",
+    href: "https://arxiv.org/pdf/2205.11916#page=4",
     source: "Kojima et al. (2022), Figure 2",
     caption: "‘Let’s think step by step’ belongs to Zero-shot-CoT."
   },
@@ -31,7 +31,7 @@ const figureVariants = {
     alt: "Direct code execution prediction compared with a language-model scratchpad that writes a line-by-line execution trace.",
     width: "1357",
     height: "968",
-    href: "../papers/2112.00114-scratchpads.pdf#page=2",
+    href: "https://arxiv.org/pdf/2112.00114#page=2",
     source: "Nye et al. (2021), Figure 1",
     caption: "A trained scratchpad turns intermediate computation into text."
   }

@@ -15,10 +15,10 @@ to using more computation between the question and the answer?
 6. Latent reasoning performs intermediate computation in continuous states.
 7. The broader development is flexible test-time computation.
 
-The slides use figures extracted from the local literature collection, including
+The slides use figures extracted from the project literature collection, including
 Wei et al., Nye et al., Kojima et al., Quiet-STaR, Coconut, Pause Tokens, and the
 original Transformer paper. Each figure is labeled with its source and linked to
-the corresponding local PDF.
+the corresponding public arXiv PDF.
 
 ## Presenting
 

@@ -1,6 +1,6 @@
 # Literature figure extracts
 
-High-resolution PNG crops prepared from the local paper set for the 7-slide
+High-resolution PNG crops prepared from the project paper set for the 7-slide
 presentation narrative. The images contain the original figure artwork but omit
 the surrounding paper text and captions so they can be placed cleanly in slides.
 
@@ -19,5 +19,5 @@ comparison. That diagram should remain an original two-lane schematic, with
 Pause Tokens used only as a related computation analogue rather than as a product
 architecture claim.
 
-When using an extract, keep an `Adapted from ...` or `Source: ...` citation in
-the slide footer. The original PDFs are in `../../../papers/`.
+When using an extract, keep a source citation in the slide footer. The deployed
+presentation links each citation to the corresponding public arXiv PDF.
