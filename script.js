@@ -6,75 +6,43 @@ const totalSlidesLabel = document.getElementById("total-slides");
 const progressFill = document.getElementById("progress-fill");
 const dotsContainer = document.getElementById("slide-dots");
 const notesToggle = document.getElementById("notes-toggle");
-const deckShell = document.querySelector(".deck-shell");
-
-const output = document.getElementById("solver-output");
-const diagramCaption = document.getElementById("diagram-caption");
-const modeTabs = Array.from(document.querySelectorAll(".mode-tab"));
-const modeChips = Array.from(document.querySelectorAll(".mode-chip"));
-const diagramPaths = Array.from(document.querySelectorAll("[data-path]"));
-const tableRows = Array.from(document.querySelectorAll("[data-row]"));
+const fullscreenToggle = document.getElementById("fullscreen-toggle");
+const deckShell = document.getElementById("deck");
+const workspaceFigure = document.getElementById("workspace-figure");
+const workspaceSourceLink = document.getElementById("workspace-source-link");
+const workspaceCaption = document.getElementById("workspace-caption");
+const figureTabs = Array.from(document.querySelectorAll(".figure-tab"));
 
 let activeSlide = 0;
-let activeMode = "direct";
+let activeFigure = "zero-shot";
 
-const modes = {
-  direct: {
-    title: "Direct answer",
-    items: ["Answer: 693"],
-    note:
-      "Fast and compact, but the student cannot inspect the intermediate computation.",
-    caption:
-      "Direct answering uses the same Transformer machinery, but the interface shows only the final generated answer.",
-    path: null
+const figureVariants = {
+  "zero-shot": {
+    src: "assets/literature-figures/03_kojima_fig2_zero_shot_cot.png",
+    alt: "The two-stage Zero-shot-CoT pipeline first extracts reasoning and then extracts the final answer.",
+    width: "1341",
+    height: "531",
+    href: "../papers/2205.11916-zero-shot-reasoners.pdf#page=4",
+    source: "Kojima et al. (2022), Figure 2",
+    caption: "‘Let’s think step by step’ belongs to Zero-shot-CoT."
   },
-  cot: {
-    title: "Visible chain-of-thought",
-    items: [
-      "Blue = 3.",
-      "Red = 2 times blue = 6.",
-      "Green = red plus blue = 9.",
-      "Code in red, green, blue order = 693."
-    ],
-    note:
-      "The reasoning becomes text tokens. Later answer tokens can attend to those earlier generated steps.",
-    caption:
-      "Visible CoT stores intermediate computation as generated language tokens that remain in the context.",
-    path: "cot"
-  },
-  hidden: {
-    title: "Hidden reasoning",
-    items: [
-      "Private reasoning used.",
-      "Summary: The color values were computed first, then placed in the requested order.",
-      "Answer: 693"
-    ],
-    note:
-      "The user sees a summary or answer, not the full private scratchpad. This is an interface pattern, not direct access to internals.",
-    caption:
-      "Hidden reasoning keeps intermediate text private and exposes only a summary or final answer.",
-    path: "hidden"
-  },
-  latent: {
-    title: "Latent reasoning preview",
-    items: [
-      "Puzzle tokens update internal hidden states.",
-      "Extra computation refines those states before any final text is emitted.",
-      "Answer: 693"
-    ],
-    note:
-      "This is a research preview inspired by pause-token and continuous-latent reasoning work, not a claim about a specific deployed model.",
-    caption:
-      "Latent reasoning research asks whether some reasoning can happen through hidden-state updates instead of natural-language steps.",
-    path: "latent"
+  scratchpad: {
+    src: "assets/literature-figures/02_nye_fig1_direct_vs_scratchpad.png",
+    alt: "Direct code execution prediction compared with a language-model scratchpad that writes a line-by-line execution trace.",
+    width: "1357",
+    height: "968",
+    href: "../papers/2112.00114-scratchpads.pdf#page=2",
+    source: "Nye et al. (2021), Figure 1",
+    caption: "A trained scratchpad turns intermediate computation into text."
   }
 };
 
-function setSlide(index) {
-  if (document.activeElement instanceof HTMLElement) {
-    document.activeElement.blur();
-  }
+Object.values(figureVariants).forEach((variant) => {
+  const preload = new Image();
+  preload.src = variant.src;
+});
 
+function setSlide(index) {
   activeSlide = Math.max(0, Math.min(index, slides.length - 1));
 
   slides.forEach((slide, slideIndex) => {
@@ -97,90 +65,82 @@ function setSlide(index) {
   });
 
   window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-  requestAnimationFrame(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-  });
 }
 
 function renderDots() {
-  dotsContainer.innerHTML = "";
+  dotsContainer.replaceChildren();
+
   slides.forEach((slide, index) => {
     const button = document.createElement("button");
     button.className = "dot-button";
     button.type = "button";
     button.textContent = String(index + 1);
+    button.title = slide.dataset.title;
     button.setAttribute("aria-label", `Go to slide ${index + 1}: ${slide.dataset.title}`);
     button.addEventListener("click", () => setSlide(index));
     dotsContainer.appendChild(button);
   });
 }
 
-function renderMode(modeKey) {
-  const mode = modes[modeKey];
-  if (!mode || !output) {
+function setFigureVariant(key) {
+  const variant = figureVariants[key];
+  if (!variant || !workspaceFigure || !workspaceSourceLink || !workspaceCaption) {
     return;
   }
 
-  activeMode = modeKey;
+  activeFigure = key;
+  workspaceFigure.classList.add("is-changing");
 
-  output.innerHTML = `
-    <p class="solver-title">${mode.title}</p>
-    <ul class="solver-list">
-      ${mode.items.map((item) => `<li>${item}</li>`).join("")}
-    </ul>
-    <p class="solver-note">${mode.note}</p>
-  `;
+  window.setTimeout(() => {
+    workspaceFigure.src = variant.src;
+    workspaceFigure.alt = variant.alt;
+    workspaceFigure.width = Number(variant.width);
+    workspaceFigure.height = Number(variant.height);
+    workspaceSourceLink.href = variant.href;
+    workspaceSourceLink.textContent = variant.source;
+    workspaceCaption.textContent = variant.caption;
+    workspaceFigure.classList.remove("is-changing");
+  }, 120);
 
-  modeTabs.forEach((button) => {
-    const isActive = button.dataset.mode === modeKey;
+  figureTabs.forEach((button) => {
+    const isActive = button.dataset.figure === activeFigure;
     button.classList.toggle("is-active", isActive);
     button.setAttribute("aria-selected", String(isActive));
   });
-
-  modeChips.forEach((button) => {
-    button.classList.toggle("is-selected", button.dataset.jumpMode === modeKey);
-  });
-
-  diagramPaths.forEach((path) => {
-    path.classList.toggle("is-active", path.dataset.path === mode.path);
-  });
-
-  tableRows.forEach((row) => {
-    row.classList.toggle("is-active", row.dataset.row === modeKey);
-  });
-
-  if (diagramCaption) {
-    diagramCaption.textContent = mode.caption;
-  }
-
-  if (document.activeElement instanceof HTMLElement) {
-    document.activeElement.blur();
-  }
-  requestAnimationFrame(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-  });
 }
 
-function jumpToMode(modeKey) {
-  renderMode(modeKey);
-  setSlide(3);
+function toggleNotes() {
+  const shouldShow = !deckShell.classList.contains("show-notes");
+  deckShell.classList.toggle("show-notes", shouldShow);
+  notesToggle.setAttribute("aria-pressed", String(shouldShow));
+}
+
+async function toggleFullscreen() {
+  try {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen();
+    } else {
+      await document.documentElement.requestFullscreen();
+    }
+  } catch (error) {
+    console.warn("Fullscreen is unavailable in this browser.", error);
+  }
+}
+
+function syncFullscreenButton() {
+  const isFullscreen = Boolean(document.fullscreenElement);
+  fullscreenToggle.setAttribute("aria-pressed", String(isFullscreen));
+  fullscreenToggle.textContent = isFullscreen ? "Exit fullscreen" : "Fullscreen";
 }
 
 prevButton.addEventListener("click", () => setSlide(activeSlide - 1));
 nextButton.addEventListener("click", () => setSlide(activeSlide + 1));
+notesToggle.addEventListener("click", toggleNotes);
+fullscreenToggle.addEventListener("click", toggleFullscreen);
+document.addEventListener("fullscreenchange", syncFullscreenButton);
 
-modeTabs.forEach((button) => {
-  button.addEventListener("click", () => renderMode(button.dataset.mode));
-});
-
-modeChips.forEach((button) => {
-  button.addEventListener("click", () => jumpToMode(button.dataset.jumpMode));
-});
-
-notesToggle.addEventListener("click", () => {
-  const shouldShow = !deckShell.classList.contains("show-notes");
-  deckShell.classList.toggle("show-notes", shouldShow);
-  notesToggle.setAttribute("aria-pressed", String(shouldShow));
+figureTabs.forEach((button) => {
+  button.addEventListener("click", () => setFigureVariant(button.dataset.figure));
 });
 
 document.addEventListener("keydown", (event) => {
@@ -212,11 +172,17 @@ document.addEventListener("keydown", (event) => {
   }
 
   if (event.key.toLowerCase() === "n") {
-    notesToggle.click();
+    event.preventDefault();
+    toggleNotes();
+  }
+
+  if (event.key.toLowerCase() === "f") {
+    event.preventDefault();
+    toggleFullscreen();
   }
 });
 
 totalSlidesLabel.textContent = String(slides.length);
 renderDots();
-renderMode(activeMode);
+setFigureVariant(activeFigure);
 setSlide(activeSlide);

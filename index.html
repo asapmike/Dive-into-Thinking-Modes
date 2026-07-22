@@ -3,33 +3,36 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Think Out Loud or Think Inside?</title>
+    <meta name="theme-color" content="#f3f6fb">
+    <title>From Direct Answers to Hidden and Latent Reasoning</title>
     <meta
       name="description"
-      content="An interactive slide presentation about direct answering, chain-of-thought, hidden reasoning, and latent reasoning in deep learning."
+      content="A seven-slide classroom presentation about how language models gain more computation at inference time."
     >
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
-    <a class="skip-link" href="#deck">Skip to slides</a>
+    <a class="skip-link" href="#slides">Skip to slides</a>
 
     <main class="deck-shell" id="deck">
       <header class="topbar" aria-label="Presentation controls">
         <div class="brand-block">
-          <p class="course-label">CSE 151B communication artifact</p>
-          <h1>Think Out Loud or Think Inside?</h1>
+          <span class="course-mark">CSE 151B</span>
+          <h1>From Direct Answers to Hidden and Latent Reasoning</h1>
         </div>
+
         <div class="topbar-actions">
-          <button class="nav-button" type="button" id="prev-slide">Previous</button>
-          <button class="ghost-button" type="button" id="notes-toggle" aria-pressed="false">
+          <button class="control-button" type="button" id="notes-toggle" aria-pressed="false">
             Notes
           </button>
-          <div class="slide-counter" aria-live="polite">
-            <span id="current-slide">1</span>
-            <span aria-hidden="true">/</span>
-            <span id="total-slides">10</span>
+          <button class="control-button" type="button" id="fullscreen-toggle" aria-pressed="false">
+            Fullscreen
+          </button>
+          <div class="slide-counter" aria-live="polite" aria-label="Current slide">
+            <span id="current-slide">1</span><span aria-hidden="true"> / </span><span id="total-slides">7</span>
           </div>
-          <button class="nav-button nav-button-primary" type="button" id="next-slide">Next</button>
+          <button class="control-button" type="button" id="prev-slide">Previous</button>
+          <button class="control-button control-button-primary" type="button" id="next-slide">Next</button>
         </div>
       </header>
 
@@ -37,395 +40,399 @@
         <div class="progress-fill" id="progress-fill"></div>
       </div>
 
-      <section class="slide is-active" data-title="Opening" aria-labelledby="slide-1-title">
-        <div class="slide-kicker">Opening</div>
-        <div class="opening-grid">
-          <div class="opening-copy">
-            <h2 id="slide-1-title">Reasoning is not one thing.</h2>
-            <p class="large-copy">
-              Modern AI systems can answer directly, write intermediate steps, hide
-              private computation, or explore research ideas that reason in hidden
-              state space.
-            </p>
-            <p>
-              This deck teaches those modes through one small puzzle and one
-              Transformer-based visual language.
-            </p>
-          </div>
-          <div class="thesis-board" aria-label="Four reasoning modes overview">
-            <button class="mode-chip is-selected" type="button" data-jump-mode="direct">
-              Direct answer
-            </button>
-            <button class="mode-chip" type="button" data-jump-mode="cot">
-              Visible CoT
-            </button>
-            <button class="mode-chip" type="button" data-jump-mode="hidden">
-              Hidden reasoning
-            </button>
-            <button class="mode-chip" type="button" data-jump-mode="latent">
-              Latent preview
-            </button>
-          </div>
-        </div>
-        <aside class="speaker-notes">
-          Start by telling the audience this is not a ranking of methods. It is a
-          map of where computation becomes visible, hidden, or compressed.
-        </aside>
-      </section>
+      <div class="slides" id="slides">
+        <section class="slide slide-opening is-active" data-title="Why extra words help" aria-labelledby="slide-1-title">
+          <div class="opening-layout">
+            <div class="opening-copy enter enter-first">
+              <h2 id="slide-1-title">Why do extra words help?</h2>
+              <p class="lead-copy">
+                Same problem. Same model. More computation before the answer.
+              </p>
 
-      <section class="slide" data-title="Why It Matters" aria-labelledby="slide-2-title">
-        <div class="slide-kicker">Why it matters</div>
-        <div class="two-column">
-          <div>
-            <h2 id="slide-2-title">A first DL class already has the right tools.</h2>
-            <p>
-              Students have seen hidden activations, sequence models, attention, and
-              token prediction. Reasoning modes reuse those ideas, but package them
-              in unfamiliar product language.
-            </p>
-          </div>
-          <div class="course-map" aria-label="Course concept map">
-            <div class="course-row">
-              <span>Tokens</span>
-              <strong>What gets generated?</strong>
-            </div>
-            <div class="course-row">
-              <span>Hidden states</span>
-              <strong>Where is computation stored?</strong>
-            </div>
-            <div class="course-row">
-              <span>Attention</span>
-              <strong>What can later steps reuse?</strong>
-            </div>
-            <div class="course-row">
-              <span>Autoregression</span>
-              <strong>Why do steps change future output?</strong>
-            </div>
-          </div>
-        </div>
-        <aside class="speaker-notes">
-          This slide answers the proposal feedback. The resource matters because
-          students already know the pieces but need a bridge to current AI terms.
-        </aside>
-      </section>
-
-      <section class="slide" data-title="Baseline" aria-labelledby="slide-3-title">
-        <div class="slide-kicker">Baseline</div>
-        <h2 id="slide-3-title">A Transformer predicts the next token from context.</h2>
-        <p class="slide-intro">
-          The starting point is the standard Transformer picture: input tokens become
-          hidden states, attention mixes information, and the model emits output
-          tokens one at a time.
-        </p>
-        <div class="architecture-frame baseline-diagram" aria-label="Simplified Transformer baseline diagram">
-          <div class="token-strip input-strip" data-diagram-part="input">
-            <span>red</span>
-            <span>green</span>
-            <span>blue</span>
-            <span>?</span>
-          </div>
-          <div class="attention-stage">
-            <div class="attn-arrow"></div>
-            <div class="transformer-block" data-diagram-part="transformer">
-              Transformer block
-              <small>attention + MLP + hidden states</small>
-            </div>
-            <div class="attn-arrow"></div>
-          </div>
-          <div class="token-strip output-strip" data-diagram-part="output">
-            <span>6</span>
-            <span>9</span>
-            <span>3</span>
-          </div>
-        </div>
-        <p class="source-line">
-          Diagram language adapted from Vaswani et al., <cite>Attention Is All You Need</cite>.
-        </p>
-        <aside class="speaker-notes">
-          Keep this slide concrete. It is the shared machinery used by the later
-          reasoning modes.
-        </aside>
-      </section>
-
-      <section class="slide" data-title="Four Modes" aria-labelledby="slide-4-title">
-        <div class="slide-kicker">Four modes</div>
-        <h2 id="slide-4-title">One puzzle, four reasoning modes.</h2>
-        <p class="slide-intro">
-          Click a mode to change the output, the architecture path, and the tradeoff
-          table. The example is scripted so the mechanism stays readable.
-        </p>
-        <div class="interactive-lab">
-          <div class="puzzle-card">
-            <p class="mini-label">Puzzle</p>
-            <h3>Three-color lock</h3>
-            <p>
-              The code is ordered red, green, blue. Blue is 3. Red is 2 times
-              blue. Green is red plus blue.
-            </p>
-            <strong>What code opens the lock?</strong>
-          </div>
-
-          <div class="mode-control" role="tablist" aria-label="Reasoning mode choices">
-            <button class="mode-tab is-active" type="button" role="tab" aria-selected="true" data-mode="direct">
-              Direct
-            </button>
-            <button class="mode-tab" type="button" role="tab" aria-selected="false" data-mode="cot">
-              Visible CoT
-            </button>
-            <button class="mode-tab" type="button" role="tab" aria-selected="false" data-mode="hidden">
-              Hidden
-            </button>
-            <button class="mode-tab" type="button" role="tab" aria-selected="false" data-mode="latent">
-              Latent
-            </button>
-          </div>
-
-          <div class="output-card" aria-live="polite">
-            <p class="mini-label">What the user sees</p>
-            <div id="solver-output"></div>
-          </div>
-        </div>
-        <aside class="speaker-notes">
-          This is the anchor demo. The key point is not puzzle difficulty. The
-          key point is where the intermediate computation is represented.
-        </aside>
-      </section>
-
-      <section class="slide" data-title="Interactive Diagram" aria-labelledby="slide-5-title">
-        <div class="slide-kicker">Interactive diagram</div>
-        <h2 id="slide-5-title">Where does the intermediate computation live?</h2>
-        <div class="diagram-layout">
-          <div class="reasoning-diagram" aria-label="Interactive reasoning architecture diagram">
-            <div class="diagram-column">
-              <p class="mini-label">Input</p>
-              <div class="diagram-node input-node" data-node="input">Puzzle tokens</div>
-            </div>
-            <div class="diagram-column">
-              <p class="mini-label">Model</p>
-              <div class="diagram-node model-node" data-node="model">Transformer</div>
-              <div class="diagram-node state-node" data-node="state">Hidden states</div>
-            </div>
-            <div class="diagram-column" data-path="cot">
-              <p class="mini-label">Visible path</p>
-              <div class="diagram-node token-node">reasoning tokens</div>
-              <div class="diagram-node token-node">answer token</div>
-            </div>
-            <div class="diagram-column" data-path="hidden">
-              <p class="mini-label">Private path</p>
-              <div class="diagram-node private-node">private scratchpad</div>
-              <div class="diagram-node token-node">summary + answer</div>
-            </div>
-            <div class="diagram-column" data-path="latent">
-              <p class="mini-label">Latent path</p>
-              <div class="latent-loop">
-                <span>h1</span>
-                <span>h2</span>
-                <span>h3</span>
+              <div class="question-block">
+                <span>The question for today</span>
+                <strong>Why can intermediate steps improve difficult reasoning?</strong>
               </div>
-              <div class="diagram-node token-node">answer token</div>
             </div>
-          </div>
-          <div class="diagram-caption" id="diagram-caption">
-            Direct answering uses the same Transformer machinery, but the interface
-            shows only the final generated answer.
-          </div>
-        </div>
-        <aside class="speaker-notes">
-          The visible path is inspired by chain-of-thought diagrams. The latent
-          path is inspired by pause-token and Coconut-style diagrams, simplified
-          into hidden-state updates.
-        </aside>
-      </section>
 
-      <section class="slide" data-title="Visible Reasoning" aria-labelledby="slide-6-title">
-        <div class="slide-kicker">Visible reasoning</div>
-        <div class="two-column">
-          <div>
-            <h2 id="slide-6-title">Chain-of-thought makes reasoning a text sequence.</h2>
+            <figure class="paper-figure figure-hero enter enter-second">
+              <img
+                src="assets/literature-figures/01_wei_fig1_standard_vs_cot.png"
+                alt="Standard prompting gives a wrong direct answer while chain-of-thought prompting shows intermediate arithmetic and gives the correct answer."
+                width="1306"
+                height="657"
+                fetchpriority="high"
+              >
+              <figcaption>
+                <a href="../papers/2201.11903-chain-of-thought-prompting.pdf#page=1" target="_blank" rel="noreferrer">
+                  Wei et al. (2022), Figure 1
+                </a>
+              </figcaption>
+            </figure>
+          </div>
+
+          <aside class="speaker-notes">
+            <strong>45 seconds.</strong> Start with the Roger example. Do not define every reasoning mode yet. Ask why writing intermediate steps changes the result when the model and question stay the same. The answer developed across the deck is that the extra tokens create additional decoding steps and a reusable workspace.
+          </aside>
+        </section>
+
+        <section class="slide" data-title="Direct answers" aria-labelledby="slide-2-title">
+          <div class="slide-heading enter enter-first">
+            <h2 id="slide-2-title">Direct answers have no separate workspace.</h2>
             <p>
-              In visible CoT, intermediate steps become tokens. That makes them easy
-              for a human to inspect, and it also gives later generated tokens more
-              context to attend to.
+              Internal activations still exist, but there is no dedicated sequence of pre-answer tokens.
             </p>
           </div>
-          <div class="path-sketch" aria-label="Visible chain-of-thought process">
-            <span class="sketch-token">Question</span>
-            <span class="sketch-link">to</span>
-            <span class="sketch-token is-reasoning">Step 1</span>
-            <span class="sketch-token is-reasoning">Step 2</span>
-            <span class="sketch-token is-reasoning">Step 3</span>
-            <span class="sketch-link">to</span>
-            <span class="sketch-token is-answer">Answer</span>
-          </div>
-        </div>
-        <div class="single-table">
-          <table>
-            <thead>
-              <tr>
-                <th>Affordance</th>
-                <th>Risk</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Human-readable intermediate steps</td>
-                <td>Written reasoning may sound plausible even when it is wrong</td>
-              </tr>
-              <tr>
-                <td>Useful for teaching and debugging</td>
-                <td>More generated tokens can mean more cost and latency</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="source-line">
-          Based on Wei et al. on chain-of-thought prompting, plus scratchpad and
-          zero-shot CoT work.
-        </p>
-        <aside class="speaker-notes">
-          Mention that visible reasoning is good pedagogically, but not a perfect
-          window into what the model internally did.
-        </aside>
-      </section>
 
-      <section class="slide" data-title="Extensions" aria-labelledby="slide-7-title">
-        <div class="slide-kicker">Extensions</div>
-        <h2 id="slide-7-title">Some methods search over reasoning, not just one chain.</h2>
-        <p class="slide-intro">
-          Self-consistency and Tree of Thoughts extend visible reasoning by sampling
-          or exploring several candidate paths before choosing an answer.
-        </p>
-        <div class="branching-board" aria-label="Multiple reasoning paths diagram">
-          <div class="branch-root">Puzzle</div>
-          <div class="branches">
-            <div class="branch is-muted">path A<br><strong>691</strong></div>
-            <div class="branch is-selected">path B<br><strong>693</strong></div>
-            <div class="branch is-muted">path C<br><strong>963</strong></div>
-          </div>
-          <div class="vote-box">select or vote</div>
-        </div>
-        <aside class="speaker-notes">
-          Keep this short. These are not core modes for our artifact, but they help
-          students see why reasoning can also involve sampling and search.
-        </aside>
-      </section>
+          <div class="direct-layout">
+            <div class="direct-story enter enter-second">
+              <div class="linear-flow" aria-label="Question passes through a fixed-depth Transformer to produce an answer">
+                <div class="flow-node">Question</div>
+                <div class="flow-arrow" aria-hidden="true">→</div>
+                <div class="flow-node flow-model">
+                  <strong>Transformer</strong>
+                  <span>L fixed layers</span>
+                </div>
+                <div class="flow-arrow" aria-hidden="true">→</div>
+                <div class="flow-node flow-answer">Answer</div>
+              </div>
 
-      <section class="slide" data-title="Hidden and Latent" aria-labelledby="slide-8-title">
-        <div class="slide-kicker">Hidden and latent</div>
-        <div class="contrast-grid">
-          <article class="contrast-panel">
-            <h2 id="slide-8-title">Hidden reasoning is an interface choice.</h2>
-            <p>
-              The model may use private intermediate computation, but the user sees
-              only an answer or a brief summary. This is closer to many deployed
-              reasoning products.
-            </p>
-            <div class="mini-flow">
-              <span>input</span>
-              <span>private text</span>
-              <span>summary</span>
+              <blockquote class="key-statement">
+                Most task computation must fit inside the fixed-depth passes that produce the answer.
+              </blockquote>
+
+              <p class="precision-note">
+                A direct response can contain several answer tokens. What it lacks is a separate scratchpad before committing to the answer.
+              </p>
             </div>
-          </article>
-          <article class="contrast-panel">
-            <h2>Latent reasoning is a research direction.</h2>
+
+            <figure class="paper-figure transformer-figure enter enter-third">
+              <img
+                src="assets/literature-figures/optional_transformer_fig1_architecture.png"
+                alt="The original Transformer encoder-decoder architecture with stacked attention and feed-forward layers."
+                width="775"
+                height="1115"
+                loading="eager"
+              >
+              <figcaption>
+                <a href="../papers/1706.03762-attention-is-all-you-need.pdf#page=3" target="_blank" rel="noreferrer">
+                  Vaswani et al. (2017), Figure 1
+                </a>
+              </figcaption>
+            </figure>
+          </div>
+
+          <aside class="speaker-notes">
+            <strong>1 minute.</strong> Direct answer does not mean zero computation. The Transformer still builds hidden activations. The limitation is that the model cannot choose a long pre-answer workspace. Each answer prediction passes through the same fixed stack of layers.
+          </aside>
+        </section>
+
+        <section class="slide" data-title="Reasoning tokens" aria-labelledby="slide-3-title">
+          <div class="slide-heading enter enter-first">
+            <h2 id="slide-3-title">Reasoning tokens become a workspace.</h2>
             <p>
-              The idea is to spend more computation in hidden activations or special
-              internal steps before producing text. It is promising, but should not
-              be presented as a standard deployed mechanism.
+              Each generated reasoning token adds another decoding step through the Transformer layers.
             </p>
-            <div class="mini-flow">
-              <span>input</span>
-              <span>hidden state loop</span>
-              <span>answer</span>
+          </div>
+
+          <div class="workspace-layout">
+            <div class="workspace-explanation enter enter-second">
+              <div class="token-workspace" aria-label="Question followed by reasoning tokens and an answer token">
+                <span class="token token-input">Question</span>
+                <span class="token-arrow" aria-hidden="true">→</span>
+                <span class="token token-reasoning">Reason 1</span>
+                <span class="token-arrow" aria-hidden="true">→</span>
+                <span class="token token-reasoning">Reason 2</span>
+                <span class="token-arrow" aria-hidden="true">→</span>
+                <span class="token token-answer">Answer</span>
+              </div>
+
+              <div class="fact-stack">
+                <p><strong>Few-shot CoT:</strong> show worked reasoning examples in the prompt.</p>
+                <p><strong>Zero-shot CoT:</strong> add a trigger such as “Let’s think step by step.”</p>
+                <p><strong>No parameter update:</strong> this is prompt engineering at inference time.</p>
+              </div>
             </div>
-          </article>
-        </div>
-        <aside class="speaker-notes">
-          This slide is where we avoid overclaiming. Hidden reasoning and latent
-          reasoning are related, but not the same claim.
-        </aside>
-      </section>
 
-      <section class="slide" data-title="Tradeoffs" aria-labelledby="slide-9-title">
-        <div class="slide-kicker">Tradeoffs</div>
-        <h2 id="slide-9-title">The choice is a design tradeoff, not a simple upgrade.</h2>
-        <div class="table-responsive">
-          <table class="comparison-table">
-            <thead>
-              <tr>
-                <th>Mode</th>
-                <th>Visible tokens</th>
-                <th>Transparency</th>
-                <th>Token cost</th>
-                <th>Research maturity</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr data-row="direct">
-                <td>Direct answer</td>
-                <td>Low</td>
-                <td>Low</td>
-                <td>Low</td>
-                <td>Standard baseline</td>
-              </tr>
-              <tr data-row="cot">
-                <td>Visible CoT</td>
-                <td>High</td>
-                <td>Higher</td>
-                <td>Higher</td>
-                <td>Well-studied prompting method</td>
-              </tr>
-              <tr data-row="hidden">
-                <td>Hidden reasoning</td>
-                <td>Medium</td>
-                <td>Medium</td>
-                <td>Varies</td>
-                <td>Common product pattern</td>
-              </tr>
-              <tr data-row="latent">
-                <td>Latent preview</td>
-                <td>Low</td>
-                <td>Lower</td>
-                <td>Potentially lower output cost</td>
-                <td>Emerging research</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <aside class="speaker-notes">
-          Stress that transparency, efficiency, and faithfulness do not all improve
-          at once. The artifact helps students reason about the tradeoff.
-        </aside>
-      </section>
+            <div class="figure-switcher enter enter-third">
+              <div class="figure-switcher-controls" role="tablist" aria-label="Reasoning workspace examples">
+                <button class="figure-tab is-active" type="button" role="tab" aria-selected="true" data-figure="zero-shot">
+                  Zero-shot prompt
+                </button>
+                <button class="figure-tab" type="button" role="tab" aria-selected="false" data-figure="scratchpad">
+                  Scratchpad trace
+                </button>
+              </div>
 
-      <section class="slide" data-title="Source Map" aria-labelledby="slide-10-title">
-        <div class="slide-kicker">Source map</div>
-        <h2 id="slide-10-title">What the deck builds on.</h2>
-        <div class="source-grid" aria-label="Representative source papers">
-          <a href="https://arxiv.org/abs/1706.03762">Transformer baseline</a>
-          <a href="https://arxiv.org/abs/2201.11903">Chain-of-thought prompting</a>
-          <a href="https://arxiv.org/abs/2112.00114">Scratchpads</a>
-          <a href="https://arxiv.org/abs/2205.11916">Zero-shot CoT</a>
-          <a href="https://arxiv.org/abs/2203.11171">Self-consistency</a>
-          <a href="https://arxiv.org/abs/2305.10601">Tree of Thoughts</a>
-          <a href="https://arxiv.org/abs/2210.03629">ReAct</a>
-          <a href="https://arxiv.org/abs/2403.09629">Quiet-STaR</a>
-          <a href="https://arxiv.org/abs/2310.02226">Pause Tokens</a>
-          <a href="https://arxiv.org/abs/2412.06769">Coconut</a>
-          <a href="https://arxiv.org/abs/2511.05963">Next-Latent Prediction</a>
-        </div>
-        <p class="closing-copy">
-          The artifact uses original simplified diagrams. They are teaching models,
-          not claims that we can inspect a deployed model's private internals.
-        </p>
-        <aside class="speaker-notes">
-          End by returning to AI literacy. Students should be able to ask what is
-          visible, what is hidden, and what is still research.
-        </aside>
-      </section>
+              <figure class="paper-figure switchable-figure">
+                <img
+                  id="workspace-figure"
+                  src="assets/literature-figures/03_kojima_fig2_zero_shot_cot.png"
+                  alt="The two-stage Zero-shot-CoT pipeline first extracts reasoning and then extracts the final answer."
+                  width="1341"
+                  height="531"
+                  loading="eager"
+                >
+                <figcaption>
+                  <a
+                    id="workspace-source-link"
+                    href="../papers/2205.11916-zero-shot-reasoners.pdf#page=4"
+                    target="_blank"
+                    rel="noreferrer"
+                  >Kojima et al. (2022), Figure 2</a>
+                  <span id="workspace-caption">“Let’s think step by step” belongs to Zero-shot-CoT.</span>
+                </figcaption>
+              </figure>
+            </div>
+          </div>
+
+          <aside class="speaker-notes">
+            <strong>1 minute 30 seconds.</strong> Distinguish the papers carefully. Wei et al. use few-shot reasoning demonstrations. Kojima et al. introduce the zero-shot trigger. With KV caching, the whole context is not recomputed from scratch, but each new token still travels through all Transformer layers and becomes available to later tokens.
+          </aside>
+        </section>
+
+        <section class="slide" data-title="Prompting and training" aria-labelledby="slide-4-title">
+          <div class="slide-heading enter enter-first">
+            <h2 id="slide-4-title">Prompting and training change different things.</h2>
+          </div>
+
+          <div class="training-layout">
+            <div class="comparison-band enter enter-second" aria-label="Prompted chain-of-thought compared with trained reasoning">
+              <article>
+                <h3>Prompted CoT</h3>
+                <p>Instruction or demonstrations at inference time</p>
+                <strong>Parameters stay fixed</strong>
+              </article>
+              <article>
+                <h3>Trained reasoning</h3>
+                <p>SFT, distillation, or reinforcement learning</p>
+                <strong>Parameters change</strong>
+              </article>
+            </div>
+
+            <div class="training-evidence enter enter-third">
+              <div class="training-thesis">
+                <p>Prompting elicits a behavior without updating the model.</p>
+                <p>Training changes the behavior the model produces by default.</p>
+                <div class="example-line">
+                  <span>Prompting examples</span>
+                  <strong>PaLM and GPT-3 with reasoning demonstrations</strong>
+                </div>
+                <div class="example-line">
+                  <span>Training examples</span>
+                  <strong>Quiet-STaR, DeepSeek-R1, OpenAI o-series</strong>
+                </div>
+              </div>
+
+              <figure class="paper-figure quietstar-figure">
+                <img
+                  src="assets/literature-figures/04_quietstar_fig1_think_talk_learn.png"
+                  alt="Quiet-STaR generates candidate thoughts, checks whether they improve prediction, and learns from useful thoughts."
+                  width="1183"
+                  height="538"
+                  loading="eager"
+                >
+                <figcaption>
+                  <a href="../papers/2403.09629-quiet-star.pdf#page=2" target="_blank" rel="noreferrer">
+                    Zelikman et al. (2024), Figure 1. Think, talk, learn.
+                  </a>
+                </figcaption>
+              </figure>
+            </div>
+          </div>
+
+          <aside class="speaker-notes">
+            <strong>1 minute 30 seconds.</strong> This slide answers the central distinction. A prompt changes the context. Reasoning training changes the parameters and the model's default behavior. Quiet-STaR is a clean research example of training a model to generate thoughts that improve future prediction. Mention DeepSeek-R1 and the o-series only as modern examples, without claiming their full proprietary architecture is known.
+          </aside>
+        </section>
+
+        <section class="slide" data-title="Visible and hidden" aria-labelledby="slide-5-title">
+          <div class="slide-heading enter enter-first">
+            <h2 id="slide-5-title">Hidden is about visibility, not representation.</h2>
+            <p>
+              The same kind of reasoning token can be exposed, summarized, or kept private.
+            </p>
+          </div>
+
+          <div class="visibility-layout">
+            <div class="visibility-story enter enter-second">
+              <div class="visibility-lanes" aria-label="Visible and hidden reasoning use similar intermediate tokens but differ in what the user sees">
+                <div class="visibility-lane">
+                  <strong>Explicit reasoning</strong>
+                  <div class="lane-flow">
+                    <span class="lane-node">x</span>
+                    <span aria-hidden="true">→</span>
+                    <span class="lane-node lane-reasoning">z language tokens</span>
+                    <span aria-hidden="true">→</span>
+                    <span class="lane-node">y</span>
+                  </div>
+                  <p>User sees the reasoning and the answer.</p>
+                </div>
+
+                <div class="visibility-lane">
+                  <strong>Hidden reasoning</strong>
+                  <div class="lane-flow">
+                    <span class="lane-node">x</span>
+                    <span aria-hidden="true">→</span>
+                    <span class="lane-node lane-private">z private tokens</span>
+                    <span aria-hidden="true">→</span>
+                    <span class="lane-node">y</span>
+                  </div>
+                  <p>User sees an answer or a model-generated summary.</p>
+                </div>
+              </div>
+
+              <blockquote class="faithfulness-note">
+                Displayed CoT is not guaranteed to be a faithful recording of every factor that caused the answer.
+              </blockquote>
+            </div>
+
+            <figure class="paper-figure pause-figure enter enter-third">
+              <img
+                src="assets/literature-figures/07_pause_tokens_fig2_compute_paths.png"
+                alt="Standard pretraining compared with pause-token pretraining, where extra token positions create additional computational paths."
+                width="1328"
+                height="471"
+                loading="eager"
+              >
+              <figcaption>
+                <a href="../papers/2310.02226-pause-tokens.pdf#page=4" target="_blank" rel="noreferrer">
+                  Goyal et al. (2024), Figure 2
+                </a>
+                <span>Research analogue only. This is not a product architecture diagram.</span>
+              </figcaption>
+            </figure>
+          </div>
+
+          <aside class="speaker-notes">
+            <strong>1 minute 15 seconds.</strong> Hidden reasoning is not automatically a new representation. It may still use discrete language-like tokens. The difference is what the interface reveals. OpenAI says the raw o1 chain is not shown and a model-generated summary may be shown instead. Also warn that a displayed rationale is not a perfect brain recording.
+          </aside>
+        </section>
+
+        <section class="slide" data-title="Latent reasoning" aria-labelledby="slide-6-title">
+          <div class="slide-heading enter enter-first">
+            <h2 id="slide-6-title">Reasoning does not have to be language.</h2>
+          </div>
+
+          <div class="latent-layout">
+            <figure class="paper-figure coconut-figure enter enter-second">
+              <img
+                src="assets/literature-figures/06_coconut_fig1_token_vs_latent.png"
+                alt="Coconut compares token chain-of-thought with continuous reasoning that feeds the last hidden state back as the next input embedding."
+                width="1579"
+                height="428"
+                loading="eager"
+              >
+              <figcaption>
+                <a href="../papers/2412.06769-coconut-continuous-latent-reasoning.pdf#page=2" target="_blank" rel="noreferrer">
+                  Hao et al. (2024), Figure 1
+                </a>
+              </figcaption>
+            </figure>
+
+            <div class="latent-explanation enter enter-third">
+              <div class="representation-pair">
+                <article>
+                  <h3>Token CoT</h3>
+                  <code>h<sub>t</sub> → words → embedding → h<sub>t+1</sub></code>
+                </article>
+                <article>
+                  <h3>Latent reasoning</h3>
+                  <code>h<sub>t</sub> → h<sub>t+1</sub> → h<sub>t+2</sub></code>
+                </article>
+              </div>
+
+              <div class="tradeoff-list">
+                <p><strong>Potential:</strong> richer continuous states and fewer verbose tokens.</p>
+                <p><strong>Cost:</strong> harder to interpret, supervise, and verify.</p>
+                <p><strong>Status:</strong> an active research direction, not a standard deployed mechanism.</p>
+              </div>
+
+              <blockquote class="key-statement compact">
+                Hidden describes visibility. Latent describes representation.
+              </blockquote>
+            </div>
+          </div>
+
+          <aside class="speaker-notes">
+            <strong>1 minute 30 seconds.</strong> Both visible and hidden CoT can still be discrete tokens. Coconut changes the representation itself. It feeds the last hidden state back as the next input embedding between special boundary tokens. Emphasize the potential and the current limitations equally.
+          </aside>
+        </section>
+
+        <section class="slide slide-closing" data-title="Test-time computation" aria-labelledby="slide-7-title">
+          <div class="slide-heading enter enter-first">
+            <h2 id="slide-7-title">The story is test-time computation.</h2>
+          </div>
+
+          <div class="compute-story enter enter-second" aria-label="Progression toward more flexible computation at inference time">
+            <span>Direct answer</span>
+            <span aria-hidden="true">→</span>
+            <span>Language workspace</span>
+            <span aria-hidden="true">→</span>
+            <span>Learned reasoning</span>
+            <span aria-hidden="true">→</span>
+            <span>Flexible inference compute</span>
+            <span aria-hidden="true">→</span>
+            <span>Continuous latent compute</span>
+          </div>
+
+          <div class="summary-table-wrap enter enter-third">
+            <table class="summary-table">
+              <thead>
+                <tr>
+                  <th scope="col">Path</th>
+                  <th scope="col">Pre-answer steps</th>
+                  <th scope="col">Representation</th>
+                  <th scope="col">Visible to user</th>
+                  <th scope="col">Special training</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Direct answer</th>
+                  <td>No separate workspace</td>
+                  <td>Standard hidden activations</td>
+                  <td>Answer only</td>
+                  <td>Not required</td>
+                </tr>
+                <tr>
+                  <th scope="row">Prompted CoT</th>
+                  <td>Yes</td>
+                  <td>Discrete language tokens</td>
+                  <td>Usually visible</td>
+                  <td>No parameter update</td>
+                </tr>
+                <tr>
+                  <th scope="row">Trained token reasoning</th>
+                  <td>Yes</td>
+                  <td>Discrete reasoning tokens</td>
+                  <td>Visible, hidden, or summarized</td>
+                  <td>Yes</td>
+                </tr>
+                <tr>
+                  <th scope="row">Latent reasoning</th>
+                  <td>Yes</td>
+                  <td>Continuous hidden states</td>
+                  <td>Usually hidden</td>
+                  <td>Yes</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="closing-statement enter enter-fourth">
+            LLM reasoning developed by giving models more flexible computation between the question and the final answer, not simply by making thoughts visible or hidden.
+          </p>
+
+          <aside class="speaker-notes">
+            <strong>1 minute.</strong> Do not present the sequence as a strict timeline or replacement chain. It is a progression in how computation can be allocated and represented. End with the final sentence, then stop. The remaining time is available for transitions and questions.
+          </aside>
+        </section>
+      </div>
 
       <nav class="deck-nav" aria-label="Slide navigation">
-        <div class="slide-dots" id="slide-dots" aria-label="Slide picker"></div>
+        <div class="slide-dots" id="slide-dots"></div>
+        <p class="keyboard-hint">Arrow keys or Space to advance. N toggles notes. F toggles fullscreen.</p>
       </nav>
     </main>
 

@@ -1,46 +1,41 @@
-# Think Out Loud or Think Inside?
+# From Direct Answers to Hidden and Latent Reasoning
 
-Interactive slide presentation for a CSE 151B communication-track project.
+Interactive seven-slide presentation for a 10-minute CSE 151B classroom talk.
 
-The deck teaches four reasoning modes for modern language models:
+The deck follows one question: how did LLMs move from producing an answer directly
+to using more computation between the question and the answer?
 
-- Direct answering
-- Visible chain-of-thought reasoning
-- Hidden or private reasoning
-- Latent reasoning as an emerging research direction
+## Storyline
 
-The presentation uses one small puzzle, original simplified architecture diagrams,
-and a source map of representative papers. It does not call a live model or claim
-to expose real model internals.
+1. Why can extra intermediate words improve an answer?
+2. Direct answering compresses computation into a fixed Transformer depth.
+3. Language tokens create a reusable reasoning workspace.
+4. Prompting activates reasoning, while training changes default behavior.
+5. Hidden reasoning concerns visibility, not representation.
+6. Latent reasoning performs intermediate computation in continuous states.
+7. The broader development is flexible test-time computation.
 
-## How to present
+The slides use figures extracted from the local literature collection, including
+Wei et al., Nye et al., Kojima et al., Quiet-STaR, Coconut, Pause Tokens, and the
+original Transformer paper. Each figure is labeled with its source and linked to
+the corresponding local PDF.
+
+## Presenting
 
 - Open `index.html` in a browser.
-- Use `Right Arrow`, `Space`, or the `Next` button to advance.
-- Use `Left Arrow` or the `Previous` button to go back.
-- Press `N` or click `Notes` to show speaker notes.
-- On the interactive puzzle slide, click the reasoning mode tabs to compare
-  outputs.
+- Use `Right Arrow`, `Space`, or `Next` to advance.
+- Use `Left Arrow` or `Previous` to go back.
+- Press `N` or select `Notes` to show the timed speaker notes.
+- Press `F` or select `Fullscreen` for presentation mode.
+- On slide 3, switch between Zero-shot CoT and Scratchpads to compare two ways of
+  creating a language-token workspace.
 
-The narrative is designed for a 10-minute presentation:
+## Files
 
-1. Motivation and topic framing
-2. Connection to first deep learning concepts
-3. Transformer next-token baseline
-4. Four reasoning modes through one puzzle
-5. Interactive architecture diagram
-6. Visible chain-of-thought
-7. Multi-path reasoning extensions
-8. Hidden versus latent reasoning
-9. Tradeoffs
-10. Source map and limitations
+- `index.html`: slide content and source citations
+- `style.css`: responsive light and dark presentation design
+- `script.js`: navigation, notes, fullscreen, and figure switching
+- `assets/literature-figures/`: extracted paper figures and source map
 
-## Source material
-
-The local paper PDFs are stored in `../papers/`. The slide deck links to public
-arXiv pages so the source map still works after deployment.
-
-## Deployment
-
-This is a static site. It can be deployed with GitHub Pages from the repository
-root.
+The deck is fully static and can be presented locally or deployed with GitHub
+Pages.
